@@ -1,5 +1,8 @@
+import llama from "@/app/lib/llama";
+
 export default async function messages() {
   try {
+    llama();
   } catch (error: any) {
     console.error("llama error: ", error);
   }
