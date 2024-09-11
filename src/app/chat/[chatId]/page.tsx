@@ -1,15 +1,10 @@
 import llama from "@/app/lib/llama";
-import ChatBot from "@/components/ui/chatbot";
+import { Chat } from "@/components/ui/Chat";
 
-export default async function messages() {
-  try {
-    // llama();
-  } catch (error: any) {
-    console.error("llama error: ", error);
-  }
+export default function Messages() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <ChatBot />
+      <Chat />
     </main>
   );
 }

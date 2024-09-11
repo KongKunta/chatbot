@@ -13,7 +13,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export default function ChatBot() {
+type ChatBotProps = {
+  chatId: string | null;
+};
+
+export default function ChatBot({ chatId }: ChatBotProps) {
   const [messages, setMessages] = React.useState([
     { id: 1, content: "Hello! How can I assist you today?", sender: "bot" },
     {
