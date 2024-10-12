@@ -13,85 +13,111 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type ChatBotProps = {
-  chatId: string | null;
-};
+interface Message {
+  id: string;
+  chatId: string;
+  senderId: string;
+  message: string;
+  timestamp: Date;
+}
 
-export default function ChatBot({ chatId }: ChatBotProps) {
-  const [messages, setMessages] = React.useState([
-    { id: 1, content: "Hello! How can I assist you today?", sender: "bot" },
-    {
-      id: 2,
-      content: "Hi! I have a question about your services.",
-      sender: "user",
-    },
-    {
-      id: 3,
-      content: "Of course! I'd be happy to help. What would you like to know?",
-      sender: "bot",
-    },
-  ]);
+export default function ChatBot({
+  chat,
+  addMessage,
+  chatId,
+}: {
+  chat: Message[];
+  addMessage: (chatId: string, msg: string) => Promise<void>;
+  chatId: string;
+}) {
+  const [message, setMessage] = React.useState("");
+  const [messages, setMessages] = React.useState<Message[]>(chat);
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
-  const [input, setInput] = React.useState("");
+  React.useEffect(() => {
+    console.log("ChatBot rendered with chat:", chat);
+    setMessages(chat);
+  }, [chat]);
 
-  const handleSend = () => {
-    if (input.trim()) {
-      setMessages([
-        ...messages,
-        { id: messages.length + 1, content: input, sender: "user" },
-      ]);
-      setInput("");
+  React.useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
+  }, [messages]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (message.trim()) {
+      try {
+        await addMessage(chatId, message);
+        const newMessage: Message = {
+          id: Date.now().toString(), // Temporary ID
+          chatId: chatId,
+          senderId: "user",
+          message: message,
+          timestamp: new Date(),
+        };
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessage("");
+      } catch (error) {
+        console.error("Error adding message:", error);
+        // You might want to show an error message to the user here
+      }
+    }
+  };
+
+  const getAvatarFallback = (sender: string) => {
+    if (!sender) return "?";
+    return sender.charAt(0).toUpperCase();
   };
 
   return (
     <Card className="w-full max-w-lg mx-auto shadow-lg">
-      <CardHeader className="flex flex-row items-center p-4 border-b">
-        <Avatar className="h-8 w-8 mr-2">
-          <AvatarImage src="/placeholder-avatar.jpg" alt="Bot Avatar" />
-          <AvatarFallback>BC</AvatarFallback>
-        </Avatar>
-        <div>
-          <h2 className="text-lg font-semibold">Chatbot</h2>
-          <p className="text-sm text-muted-foreground">Always here to help</p>
-        </div>
+      <CardHeader>
+        <h2 className="text-2xl font-bold">Chat</h2>
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[400px] p-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.sender === "user" ? "justify-end" : "justify-start"
-              } mb-4`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg p-3 ${
-                  message.sender === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
-              >
-                {message.content}
+      <CardContent>
+        <ScrollArea className="h-[400px] pr-4" ref={scrollAreaRef}>
+          {messages && messages.length > 0 ? (
+            messages.map((msg) => (
+              <div key={msg.id} className="mb-4 flex items-start">
+                <Avatar className="mr-2">
+                  <AvatarImage
+                    src={
+                      msg.senderId ? `/avatars/${msg.senderId}.png` : undefined
+                    }
+                    alt={msg.senderId || "Unknown"}
+                  />
+                  <AvatarFallback>
+                    {getAvatarFallback(msg.senderId)}
+                  </AvatarFallback>
+                </Avatar>
+                <div
+                  className={`p-3 rounded-lg ${
+                    msg.senderId === "user" ? "bg-blue-100" : "bg-gray-100"
+                  }`}
+                >
+                  <p>{msg.message}</p>
+                  <span className="text-xs text-gray-500">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No messages yet.</p>
+          )}
         </ScrollArea>
       </CardContent>
-      <CardFooter className="p-4 border-t">
+      <CardFooter>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
+          onSubmit={handleSubmit}
           className="flex w-full items-center space-x-2"
         >
           <Input
-            id="message"
             placeholder="Type your message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
           <Button type="submit" size="icon">
             <Send className="h-4 w-4" />

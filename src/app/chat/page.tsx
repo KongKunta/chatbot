@@ -1,5 +1,6 @@
 import connect from "@/app/lib/db";
 import Chat from "@/app/lib/modals/chat";
+import message from "@/app/lib/modals/message";
 import { redirect } from "next/navigation";
 
 export default async function chat() {
@@ -10,6 +11,14 @@ export default async function chat() {
     await chat.save();
     console.log("Chat saved", chat);
     chatId = chat._id;
+    const msg = new message({
+      chatId: chatId,
+      senderId: "system",
+      message:
+        "Hej og velkommen! Jeg er her for at hjælpe dig med alt, hvad du har brug for. Hvad kan jeg gøre for dig i dag?",
+    });
+    await msg.save();
+    console.log("Message saved", msg);
   } catch (error: any) {
     console.error("Error connecting to MongoDB", error);
   }

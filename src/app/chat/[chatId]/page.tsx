@@ -1,10 +1,11 @@
-import llama from "@/app/lib/llama";
-import { Chat } from "@/components/ui/Chat";
+import ChatBot from "@/components/ui/ChatBot";
+import { queryDB, addMessage } from "./actions";
 
-export default function Messages() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Chat />
-    </main>
-  );
+export default async function Page({ params }: { params: { chatId: string } }) {
+  const chatId = params.chatId;
+  console.log("Fetching chat for chatId:", chatId);
+  const chat = await queryDB(chatId);
+  console.log("Chat data received:", chat);
+
+  return <ChatBot chat={chat} addMessage={addMessage} chatId={chatId} />;
 }

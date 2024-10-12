@@ -14,6 +14,7 @@ async function llama() {
 
   const response = await prediction;
   console.log(response.content);
+  return response.content;
 }
 
 export default llama;
