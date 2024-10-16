@@ -27,11 +27,12 @@ export default function ChatBot({
   chatId,
 }: {
   chat: Message[];
-  addMessage: (chatId: string, msg: string) => Promise<void>;
+  addMessage: (chatId: string, msg: string, senderId: string) => Promise<void>;
   chatId: string;
 }) {
   const [message, setMessage] = React.useState("");
   const [messages, setMessages] = React.useState<Message[]>(chat);
+
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -49,7 +50,7 @@ export default function ChatBot({
     e.preventDefault();
     if (message.trim()) {
       try {
-        await addMessage(chatId, message);
+        await addMessage(chatId, message, "user");
         const newMessage: Message = {
           id: Date.now().toString(), // Temporary ID
           chatId: chatId,

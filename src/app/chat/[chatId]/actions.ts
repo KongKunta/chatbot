@@ -1,6 +1,8 @@
 "use server";
 import connect from "@/app/lib/db";
 import message from "@/app/lib/modals/message";
+import { time } from "console";
+import mongoose from "mongoose";
 
 export async function queryDB(chatId: string) {
   console.log("Attempting to query database for chatId:", chatId);
@@ -18,11 +20,16 @@ export async function queryDB(chatId: string) {
   }
 }
 
-export async function addMessage(chatId: string, msg: string) {
+export async function addMessage(
+  chatId: string,
+  msg: string,
+  senderId: string
+) {
   const newMessage = new message({
     chatId: chatId,
-    senderId: "user",
+    senderId: senderId,
     message: msg,
+    timestamp: new Date(),
   });
   await newMessage.save();
 }

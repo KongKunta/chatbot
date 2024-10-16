@@ -5,12 +5,12 @@ const messageSchema = new Schema({
   chatId: {
     type: Schema.Types.ObjectId,
     ref: "chat",
-    required: true,
+    // required: true,
   },
   senderId: String,
   message: {
     type: String,
-    required: true,
+    // required: true,
   },
   timestamp: {
     type: Date,
